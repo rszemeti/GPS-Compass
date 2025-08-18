@@ -3,7 +3,7 @@
 A cross-platform project for reading, parsing, and displaying **NMEA GPS/heading data**.
 Originally built in **Python (Tkinter GUI)** for Windows with Bluetooth/serial GPS receivers, and extended with an **Android app** for mobile use. Primarily intended to work with the PPM 4011 series of professional GPS compasses, but shoudl work with any GPS compass using the Realtime Kinematics Layer (RTK)
 
-![App Screenshot](doc/WhatsApp Image 2025-08-18 at 13.40.14_c02a4df8.jpg)
+![App Screenshot](doc/outdoor.jpg)
 
 
 ---
