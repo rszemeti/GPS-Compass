@@ -39,7 +39,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                val state by vm.ui.collectAsState()
+                // ✅ FIX: vm.ui is already a Compose State<UiState>
+                val state by vm.ui
 
                 val neededPerms = buildList {
                     if (Build.VERSION.SDK_INT >= 31) {

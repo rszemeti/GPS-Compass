@@ -3,4 +3,5 @@ Python_client/build/
 Android_client/build/
 Android_client/app/build/
 Android_client/.gradle/
-
+Android_client/local.properties
+Android_client/.idea/
