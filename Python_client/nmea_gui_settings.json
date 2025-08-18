@@ -1,0 +1,8 @@
+{
+  "port": "",
+  "baud": 38400,
+  "fir_window": 15,
+  "heading_offset_deg": 0.0,
+  "mini_on_top": true,
+  "mini_show_on_start": true
+}
