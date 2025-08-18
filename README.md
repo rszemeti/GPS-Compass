@@ -41,6 +41,8 @@ The Python desktop version is built with **Tkinter** and **pyserial**.
   * **Mini window**: compact heading + status display (optionally always-on-top)
 * Saves user settings (JSON) for next run
 
+![Python based app](doc/python.png)
+
 ### Example NMEA sentences handled
 
 * `$GPGGA` – Fix, satellites, altitude
@@ -88,6 +90,8 @@ The Android version is a **native Kotlin app** with a simple interface designed 
   * Basic UTC timestamp
 * Minimal UI optimized for full-screen use
 * Intended as a lightweight “field display” (no NMEA log window, no mini-window)
+
+![Android app](doc/android.png)
 
 ### Building the APK
 
