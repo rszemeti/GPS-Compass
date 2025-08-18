@@ -1,1 +1,6 @@
 Python_client/build/
+
+Android_client/build/
+Android_client/app/build/
+Android_client/.gradle/
+
