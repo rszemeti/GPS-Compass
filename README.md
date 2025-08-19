@@ -160,3 +160,4 @@ GNU General Public License v2.0
 * [PySerial](https://pyserial.readthedocs.io/)
 * [Tkinter](https://docs.python.org/3/library/tkinter.html)
 * [Android Bluetooth API](https://developer.android.com/guide/topics/connectivity/bluetooth)
+* [RTK System from Barry AGN](https://github.com/rszemeti/GPS-Compass/doc/Barry_AGN_notes.pdf)
