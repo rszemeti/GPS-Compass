@@ -24,7 +24,14 @@ The focus is on **heading display** for use in radio, navigation, and field appl
 
 ## 🖥️ Python GUI (Windows/Linux/macOS)
 
+### Downloads
+
+[Download latest nmea_display.exe](https://github.com/rszemeti/GPS-Compass/releases/latest/download/nmea_display.exe)
+
+
 The Python desktop version is built with **Tkinter** and **pyserial**.
+
+
 
 ### Features
 
@@ -136,9 +143,8 @@ Copy the APK to your device and install manually, or deploy directly via Android
 ## 📂 Project Structure
 
 ```
-/nmea_display.py       → Python GUI app
-/settings.json         → Saved Python GUI settings
-/gps-heading-android/  → Android Studio project
+/Python_client       → Python GUI app
+/Android_client      → Android Studio project
 ```
 
 ---
