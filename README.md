@@ -117,9 +117,10 @@ Copy the APK to your device and install manually, or deploy directly via Android
 
 ## ⚙️ Requirements
 
+* ** Windows version**: Win7 or later
 * **Python version**: 3.8+
 * **Android**: API level 24+ (Android 7.0+)
-* GPS receiver that outputs standard NMEA sentences over serial/Bluetooth.
+* GPS RTK receiver that outputs standard NMEA sentences over serial/Bluetooth.
 
 ---
 
@@ -144,7 +145,7 @@ Copy the APK to your device and install manually, or deploy directly via Android
 
 ## 📜 License
 
-MIT License – free to use, modify, and distribute.
+GNU General Public License v2.0
 
 ---
 
