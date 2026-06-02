@@ -1,7 +1,14 @@
 Python_client/build/
+Python_client/dist/
+Python_client/*.exe
+Python_client/nmea_gui_settings.json
 
 Android_client/build/
 Android_client/app/build/
 Android_client/.gradle/
 Android_client/local.properties
 Android_client/.idea/
+Android_client/keystore.properties
+Android_client/*.jks
+Android_client/*.keystore
+Android_client/*.p12

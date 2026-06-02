@@ -3,5 +3,5 @@
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_surface">#FFFBFE</color>
     <color name="md_theme_light_onSurface">#1C1B1F</color>
-    <color name="ic_launcher_background">#2A2A2A</color>
+    <color name="ic_launcher_background">#10212B</color>
 </resources>
