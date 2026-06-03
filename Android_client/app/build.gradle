@@ -1,7 +1,24 @@
+import java.util.Properties
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def hasKeystoreProperties = keystorePropertiesFile.exists()
+
+if (hasKeystoreProperties) {
+    keystorePropertiesFile.withInputStream { stream ->
+        keystoreProperties.load(stream)
+    }
+}
+
+def releaseStoreFilePath = keystoreProperties.getProperty('storeFile')
+def releaseStoreFile = releaseStoreFilePath ? rootProject.file(releaseStoreFilePath) : null
+def hasReleaseSigning = hasKeystoreProperties && releaseStoreFile?.exists()
+def repoReleaseDir = new File(rootProject.projectDir.parentFile, 'release')
 
 android {
     namespace 'com.example.gpsheading'
@@ -15,9 +32,23 @@ android {
         versionName "1.0"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -58,4 +89,32 @@ dependencies {
 
     // (Optional but handy)
     implementation "androidx.core:core-ktx:1.13.1"
+}
+
+def repoReleaseApkName = "gps-compass-android-${android.defaultConfig.versionName}.apk"
+
+tasks.register('printReleaseSigningStatus') {
+    doLast {
+        if (hasReleaseSigning) {
+            println 'Release signing is configured via Android_client/keystore.properties.'
+        } else if (hasKeystoreProperties) {
+            println 'Release signing properties exist, but the keystore file was not found at: ' + (releaseStoreFilePath ?: '<missing storeFile>')
+        } else {
+            println 'Release signing is not configured. Copy Android_client/keystore.properties.example to Android_client/keystore.properties to enable signed sideloadable release builds.'
+        }
+    }
+}
+
+tasks.register('copySignedReleaseApk', Copy) {
+    dependsOn 'assembleRelease'
+    from(layout.buildDirectory.file('outputs/apk/release/app-release.apk'))
+    into(repoReleaseDir)
+    rename { repoReleaseApkName }
+
+    doFirst {
+        if (!hasReleaseSigning) {
+            throw new GradleException('Release signing must be configured before copying a signed release APK.')
+        }
+        repoReleaseDir.mkdirs()
+    }
 }

@@ -103,7 +103,7 @@ The Android version is a **native Kotlin app** with a simple interface designed 
 ### Building the APK
 
 1. Install [Android Studio](https://developer.android.com/studio).
-2. Open the project folder `gps-heading-android/`.
+2. Open the project folder `Android_client/`.
 3. Ensure the Android SDK is installed (Platform 34, Build-tools 34.0.0).
 4. Build → *Make Project* or run:
 
@@ -119,6 +119,52 @@ The Android version is a **native Kotlin app** with a simple interface designed 
 ### Installing
 
 Copy the APK to your device and install manually, or deploy directly via Android Studio.
+
+### Preparing a signed release build
+
+If you plan to install the app on your own phone and share updates with a few other people, use your own release key so future APKs can install as updates without requiring an uninstall first.
+
+1. Create an upload keystore:
+
+   ```sh
+   keytool -genkeypair -v -keystore release-upload.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. In `Android_client/`, copy `keystore.properties.example` to `keystore.properties` and fill in the real values:
+
+   ```properties
+   storeFile=release-upload.jks
+   storePassword=your-store-password
+   keyAlias=upload
+   keyPassword=your-key-password
+   ```
+
+3. Build a signed release APK:
+
+   ```sh
+   ./gradlew assembleRelease
+   ```
+
+4. The signed APK will be generated at:
+
+   ```
+   Android_client/app/build/outputs/apk/release/app-release.apk
+   ```
+
+5. To copy that signed APK into the tracked repo release folder for GitHub releases:
+
+   ```sh
+   cd Android_client
+   ./gradlew copySignedReleaseApk
+   ```
+
+   This creates:
+
+   ```
+   release/gps-compass-android-1.0.apk
+   ```
+
+The real `keystore.properties` file and keystore binaries are excluded by `.gitignore`. Keep the keystore and passwords backed up somewhere safe, because you need the same key to ship future updates to the same installed app.
 
 ---
 
