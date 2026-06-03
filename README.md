@@ -161,7 +161,7 @@ If you plan to install the app on your own phone and share updates with a few ot
    This creates:
 
    ```
-   release/gps-compass-android-1.0.apk
+   release/gps-compass-android-1.1.apk
    ```
 
 The real `keystore.properties` file and keystore binaries are excluded by `.gitignore`. Keep the keystore and passwords backed up somewhere safe, because you need the same key to ship future updates to the same installed app.
