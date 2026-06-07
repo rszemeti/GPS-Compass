@@ -1069,6 +1069,7 @@ class NMEAParser {
     var altM: Double? = null
     var utc: String? = null
     private var fixQuality: Int = 0
+    private val satsInViewByTalker = mutableMapOf<String, Int>()
 
     fun handle(sentence: String) {
         if (!sentence.startsWith("$")) return
@@ -1076,10 +1077,14 @@ class NMEAParser {
         val body = if (star >= 0) sentence.substring(1, star) else sentence.substring(1)
         val parts = body.split(',')
         if (parts.isEmpty() || parts[0].length < 5) return
+        val talker = parts[0].substring(0, 2)
         val type = parts[0].substring(2)
 
         when (type) {
             "HDT" -> parts.getOrNull(1)?.toDoubleOrNull()?.let { headingRaw = norm360(it) }
+            "TMTAR" -> if (talker == "PQ") {
+                parts.getOrNull(8)?.toDoubleOrNull()?.let { headingRaw = norm360(it) }
+            }
             "GGA" -> {
                 fixQuality = parts.getOrNull(6)?.toIntOrNull() ?: 0
                 val latitude = parseNmeaCoordinate(
@@ -1112,7 +1117,10 @@ class NMEAParser {
                 if (used > 0) satsUsed = used
                 parts.getOrNull(15)?.toDoubleOrNull()?.let { hdop = it }
             }
-            "GSV" -> parts.getOrNull(3)?.toIntOrNull()?.let { satsInView = it }
+            "GSV" -> parts.getOrNull(3)?.toIntOrNull()?.let { inView ->
+                satsInViewByTalker[talker] = inView
+                satsInView = satsInViewByTalker["GN"] ?: satsInViewByTalker.values.sum()
+            }
             "ZDA" -> {
                 val t = parts.getOrNull(1)
                 if (!t.isNullOrBlank() && t.length >= 6) {

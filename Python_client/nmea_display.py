@@ -85,6 +85,25 @@ def norm360(deg):
     return (deg % 360.0 + 360.0) % 360.0
 
 
+def parse_nmea_time(value):
+    if value and len(value) >= 6:
+        hh, mm, ss = value[0:2], value[2:4], value[4:6]
+        return f"{hh}:{mm}:{ss}"
+    return None
+
+
+def parse_nmea_date(value):
+    if not value or len(value) != 6:
+        return None
+    try:
+        day = int(value[0:2])
+        month = int(value[2:4])
+        year = 2000 + int(value[4:6])
+    except ValueError:
+        return None
+    return f"{year:04d}-{month:02d}-{day:02d}"
+
+
 # --------- Circular moving average for headings ----------
 class HeadingFIR:
     """
@@ -185,6 +204,7 @@ class SerialReader(threading.Thread):
         self.heading_fir = HeadingFIR(window=fir_window)
         self.filtered_heading = None
         self.heading_offset_deg = float(heading_offset_deg)
+        self.gsv_in_view = {}
 
     def set_fir_window(self, n):
         self.heading_fir.set_window(n)
@@ -273,9 +293,9 @@ class SerialReader(threading.Thread):
                 v = safe_float(f[8])
                 if v is not None:
                     self.state.alt_m = v
-            if f[0] and len(f[0]) >= 6:
-                hh, mm, ss = f[0][0:2], f[0][2:4], f[0][4:6]
-                self.state.utc = f"{hh}:{mm}:{ss}"
+            utc = parse_nmea_time(f[0])
+            if utc:
+                self.state.utc = utc
 
         elif typ == "GSA" and len(f) >= 17:
             used = sum(1 for s in f[2:14] if s.strip())
@@ -294,12 +314,24 @@ class SerialReader(threading.Thread):
         elif typ == "GSV" and len(f) >= 4:
             siv = safe_int(f[2])
             if siv is not None:
-                self.state.sats_in_view = siv
+                self.gsv_in_view[talker] = siv
+                if self.gsv_in_view.get("GN") is not None:
+                    self.state.sats_in_view = self.gsv_in_view["GN"]
+                else:
+                    self.state.sats_in_view = sum(v for v in self.gsv_in_view.values() if v is not None)
+
+        elif typ == "RMC" and len(f) >= 9:
+            utc = parse_nmea_time(f[0])
+            if utc:
+                self.state.utc = utc
+            date = parse_nmea_date(f[8])
+            if date:
+                self.state.date = date
 
         elif typ == "ZDA" and len(f) >= 6:
-            if f[0] and len(f[0]) >= 6:
-                hh, mm, ss = f[0][0:2], f[0][2:4], f[0][4:6]
-                self.state.utc = f"{hh}:{mm}:{ss}"
+            utc = parse_nmea_time(f[0])
+            if utc:
+                self.state.utc = utc
             year = safe_int(f[3])
             mon = safe_int(f[2])
             day = safe_int(f[1])
@@ -309,14 +341,22 @@ class SerialReader(threading.Thread):
         elif typ == "HDT" and len(f) >= 2:
             hdg = safe_float(f[0])
             if hdg is not None:
-                self.state.heading_T = norm360(hdg)
-                # Update FIR with raw (un-offset) heading
-                self.heading_fir.add(self.state.heading_T)
-                # Apply offset to filtered for display
-                filt = self.heading_fir.value()
-                self.filtered_heading = None if filt is None else norm360(
-                    filt + self.heading_offset_deg
-                )
+                self._update_heading(hdg)
+
+        elif talker == "PQ" and typ == "TMTAR" and len(f) >= 8:
+            # Proprietary Quectel attitude sentence.
+            # Field 8 carries the true heading/yaw value in degrees.
+            hdg = safe_float(f[7])
+            if hdg is not None:
+                self._update_heading(hdg)
+
+    def _update_heading(self, heading_deg):
+        self.state.heading_T = norm360(heading_deg)
+        self.heading_fir.add(self.state.heading_T)
+        filt = self.heading_fir.value()
+        self.filtered_heading = None if filt is None else norm360(
+            filt + self.heading_offset_deg
+        )
 
 
 # --------- GUI ----------
